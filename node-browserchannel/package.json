@@ -1,0 +1,28 @@
+{
+  "author": "Joseph Gentle <josephg@gmail.com> (http://josephg.com/)",
+  "name": "browserchannel",
+  "description": "Google BrowserChannel server for NodeJS",
+  "version": "1.2.0",
+  "homepage": "https://github.com/josephg/node-browserchannel",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/josephg/node-browserchannel.git"
+  },
+  "main": "index.js",
+  "engine": "node >= 0.6.2",
+  "scripts": {
+    "test": "mocha",
+    "prepublish": "make dist/server.js"
+  },
+  "dependencies": {
+    "hat": "*",
+    "connect": "~2",
+    "request": "~2",
+    "ascii-json": "~0.2"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.7",
+    "timerstub": "*",
+    "mocha": "*"
+  }
+}
