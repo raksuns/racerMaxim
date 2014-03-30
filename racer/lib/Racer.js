@@ -5,7 +5,7 @@ var util = require('./util');
 module.exports = Racer;
 
 function Racer() {
-  EventEmitter.call(this);
+	EventEmitter.call(this);
 }
 
 util.mergeInto(Racer.prototype, EventEmitter.prototype);
@@ -17,13 +17,13 @@ Racer.prototype.util = util;
 // Support plugins on racer instances
 Racer.prototype.use = util.use;
 
-Racer.prototype.createModel = function(data) {
-  var model = new Model();
-  if (data) {
-    model.createConnection(data);
-    model.unbundle(data);
-  }
-  return model;
+Racer.prototype.createModel = function (data) {
+	var model = new Model();
+	if (data) {
+		model.createConnection(data);
+		model.unbundle(data);
+	}
+	return model;
 };
 
 util.serverRequire(__dirname + '/Racer.server.js');
