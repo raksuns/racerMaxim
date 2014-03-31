@@ -1,5 +1,5 @@
 var Duplex = require('stream').Duplex;
-var browserChannel = require('browserchannel').server;
+var browserChannel = require('../../node-browserchannel').server;
 
 // Pass in pass through stream
 module.exports = function (store, serverOptions, clientOptions) {

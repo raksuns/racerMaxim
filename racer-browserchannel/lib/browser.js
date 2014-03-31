@@ -1,5 +1,5 @@
 var racer = require('racer');
-var BCSocket = require('browserchannel/dist/bcsocket-uncompressed').BCSocket;
+var BCSocket = require('../../node-browserchannel/dist/bcsocket-uncompressed').BCSocket;
 
 racer.Model.prototype._createSocket = function (bundle) {
 	var options = bundle.racerBrowserChannel;

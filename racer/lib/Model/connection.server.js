@@ -1,4 +1,4 @@
-var share = require('share');
+var share = require('../../../ShareJS');
 var Model = require('./Model');
 
 Model.prototype.createConnection = function (stream, logger) {

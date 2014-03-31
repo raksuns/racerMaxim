@@ -6,13 +6,14 @@ var app,
 	http = require('http'),
 	liveDbMongo = require('livedb-mongo'),
 	port,
-	racer = require('racer'),
+	racer = require('./racer'),
 	racerBrowserChannel = require('./racer-browserchannel'),
 	redis = require('redis').createClient(),
 	scriptBundle,
 	store,
 	templates = require('./templates');
 
+racer.use(require('./racer-bundle'));
 redis.select(13);
 
 store = racer.createStore({
@@ -37,17 +38,16 @@ app.use(function(err, req, res, next) {
 });
 
 store.on('bundle', function(browserify) {
-	browserify.add(__dirname + '/public/javascripts/jquery-1.9.1.min.js');
-	browserify.add(__dirname + '/public/javascripts/jquery-ui-1.10.3.custom.min.js');
 	return browserify.transform(coffeeify);
 });
 
 scriptBundle = function(cb) {
-	var scriptStoreBundle = store.bundle(__dirname + '/client.js', function(err, js) {
-		if(err) {
+	var scriptStoreBundle = store.bundle(__dirname + '/client.js', {
+		extensions: ['.js']
+	}, function (err, js) {
+		if (err) {
 			return cb(err);
 		}
-
 		return cb(null, js);
 	});
 	return scriptStoreBundle;

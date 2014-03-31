@@ -1,4 +1,4 @@
-var share = require('share/lib/client');
+var share = require('../../../ShareJS/lib/client');
 var Channel = require('../Channel');
 var Model = require('./Model');
 var LocalDoc = require('./LocalDoc');

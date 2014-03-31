@@ -1,6 +1,6 @@
 var Duplex = require('stream').Duplex;
 var EventEmitter = require('events').EventEmitter;
-var share = require('share');
+var share = require('../../ShareJS');
 var util = require('./util');
 var Channel = require('./Channel');
 var Model = require('./Model');
