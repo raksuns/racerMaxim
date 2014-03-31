@@ -1,8 +1,8 @@
-
 var racer = require('./racer'),
-	templates = require('./templates')
-	require('./public/js/jquery-1.9.1.min.js'),
-	require('./public/js/jquery-ui-1.10.3.custom.min.js');
+	templates = require('./templates');
+
+require('./public/js/jquery-1.9.1.min.js');
+require('./public/js/jquery-ui-1.10.3.custom.min.js');
 
 $(function () {
 	var data, eventIndex, from, list, listModel, model, newQsheet;
@@ -10,12 +10,14 @@ $(function () {
 	model = racer.createModel(data);
 	list = $('#list');
 	listModel = model.at('_qsheet.list');
+
 	listModel.on('change', '*.completed', function (index, value) {
 		var item;
 		item = list.children().eq(index);
 		item.toggleClass('completed', value);
 		return item.find('[type=checkbox]').prop('checked', value);
 	});
+
 	listModel.on('change', '*.text', function (index, value) {
 		var item;
 		item = list.children().eq(index).find('.text');
@@ -23,9 +25,11 @@ $(function () {
 			return item.val(value);
 		}
 	});
+
 	listModel.on('change', '*', function (index, value) {
 		return list.children().eq(index).replaceWith(templates.qsheetItem(value));
 	});
+
 	listModel.on('insert', function (index, values) {
 		var html, target, value;
 		html = ((function () {
@@ -44,9 +48,11 @@ $(function () {
 			return list.append(html);
 		}
 	});
+
 	listModel.on('remove', function (index, removed) {
 		return list.children().slice(index, index + removed.length).remove();
 	});
+
 	listModel.on('move', function (from, to, howMany, passed) {
 		var index, moved, target;
 		if (passed.sortable) {
@@ -61,7 +67,9 @@ $(function () {
 			return list.append(moved);
 		}
 	});
+
 	newQsheet = $('#new-qsheet');
+
 	$('#head').on('submit', function () {
 		var i, items, text, item, _i, _len;
 		text = newQsheet.val();
@@ -82,11 +90,13 @@ $(function () {
 			text: text
 		});
 	});
+
 	eventIndex = function (e) {
 		var item;
 		item = $(e.target).parents('li');
 		return list.children().index(item);
 	};
+
 	list.on('change', '[type=checkbox]', function (e) {
 		var index;
 		index = eventIndex(e);
@@ -95,13 +105,17 @@ $(function () {
 			return listModel.move(index, -1);
 		}
 	});
+
 	list.on('input', '.text', function (e) {
 		return listModel.set(eventIndex(e) + '.text', e.target.value);
 	});
+
 	list.on('click', '.delete', function (e) {
 		return listModel.remove(eventIndex(e));
 	});
+
 	from = null;
+
 	return list.sortable({
 		handle: '.handle',
 		axis: 'y',
