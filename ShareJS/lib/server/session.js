@@ -32,7 +32,10 @@ var assert = require('assert');
 module.exports = function (instance, stream, req) {
 	var session = new Session(instance, stream);
 	session.agent.trigger('connect', null, null, {stream: stream, req: req}, function (err) {
-		if (err) return session.close(err);
+		if (err) {
+			return session.close(err);
+		}
+
 		session.pump();
 	});
 	return session;
@@ -483,6 +486,7 @@ Session.prototype._processQueryResults = function (results, qopts) {
 	return messages;
 };
 
+// TODO KBS : 클라이언트로부터 수신된 요청 처리.
 // Handle an incoming message from the client. This is the actual guts of session.js.
 Session.prototype._handleMessage = function (req, callback) {
 	// First some checks of the incoming request. Error will be set to a value if a problem is found.

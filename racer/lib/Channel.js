@@ -3,6 +3,7 @@ var util = require('./util');
 
 module.exports = Channel;
 
+// TODO KBS : client로 다운로드 됨.
 function Channel(socket) {
 	EventEmitter.call(this);
 
