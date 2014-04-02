@@ -70,6 +70,7 @@ function createBrowserChannelStream(client, logger) {
 		// TODO KBS : 여기서 push가 되면, Session.pump로 전달된다. 그리고 Session._handleMessage로 들어가 요청을 처리하게 된다.
 		stream.push(data);
 
+		console.log(JSON.stringify(data));
 		if (logger) {
 			logger.write({type: 'C->S', chunk: data, client: client});
 		}
@@ -168,33 +169,10 @@ function _handleMessage (req, callback) {
 		var docName = req.d;
 	}
 
-	var self = this;
-	var agent = this.agent;
-
 	// TODO KBS  :  Now process the actual message.
 	switch (req.a) {
 		case 'fetch':
 			// Fetch request.
-			if (req.v != null) {
-				// It says fetch on the tin, but if a version is specified the client
-				// actually wants me to fetch some ops.
-				agent.getOps(collection, docName, req.v, -1, function (err, results) {
-					if (err) return callback(err);
-
-					for (var i = 0; i < results.length; i++) {
-						self._sendOp(collection, docName, results[i]);
-					}
-
-					callback(null, {});
-				});
-			} else {
-				// Fetch a snapshot.
-				agent.fetch(collection, docName, function (err, data) {
-					if (err) return callback(err);
-
-					callback(null, {data: data});
-				});
-			}
 			break;
 
 		case 'sub':
@@ -204,35 +182,15 @@ function _handleMessage (req, callback) {
 			// If the version is not specified, the client doesn't have a snapshot
 			// yet. We'll send them a snapshot at the most recent version and stream
 			// operations from that version.
-
-			if (this._isSubscribed(collection, docName)) return callback('Already subscribed');
-			this._subscribe(collection, docName, req.v, function (err, data) {
-				if (err)
-					callback(err);
-				else
-					callback(null, {data: data});
-			});
 			break;
 
 		case 'bs':
-			this.bulkSubscribe(req.s, function (err, response) {
-				callback(err, err ? null : {s: response});
-			});
 			break;
 
-		case 'unsub':
+		case 'unsub': // 삭제되면 수행됨
 			// Unsubscribe from the specified document. This cancels the active
 			// opstream.
-			var opstream = this._isSubscribed(collection, docName);
-			if (!opstream) return callback('Already unsubscribed');
 
-			if (typeof opstream === 'object') {
-				// The document is only half open. We'll _setSubscribed to
-				// false and rely on the subscribe callback to destroy the event stream.
-				opstream.destroy();
-			}
-			this._setSubscribed(collection, docName, false);
-			callback(null, {});
 			break;
 
 		case 'op':
@@ -253,27 +211,7 @@ function _handleMessage (req, callback) {
 			// from the client.
 			var options = {};
 
-			// Actually submit the op to the backend
-			agent.submit(collection, docName, opData, options, function (err, v, ops) {
-				if (err) {
-					console.trace(err);
-				}
-				if (err) return callback(null, {a: 'ack', error: err});
 
-				// The backend replies with any operations that the client is missing.
-				// If the client is subscribed to the document, it'll get those
-				// operations through the regular subscription channel. If the client
-				// isn't subscribed, we'll send the ops with the response as if it was
-				// subscribed so the client catches up.
-				if (!self._isSubscribed(collection, docName)) {
-					for (var i = 0; i < ops.length; i++)
-						self._sendOp(collection, docName, ops[i]);
-					// Luckily, the op is transformed & etc in place.
-					self._sendOp(collection, docName, opData);
-				}
-
-				callback(null, {a: 'ack'});
-			});
 			break;
 
 
@@ -282,77 +220,18 @@ function _handleMessage (req, callback) {
 		case 'qfetch':
 			// Fetch the results of a query. This does not subscribe to the query or
 			// anything, its just a once-off query fetch.
-			agent.queryFetch(index, req.q, qopts, function (err, results, extra) {
-				if (err) return callback(err);
 
-				// If the query subscribes to documents, the callback isn't called
-				// until all the documents are subscribed.
-				var data = self._processQueryResults(results, qopts);
-
-				callback(null, {id: qid, data: data, extra: extra});
-				//self._reply(req, null, {id:qid, data:results, extra:extra});
-			});
 			break;
 
 		case 'qsub':
 			// Subscribe to a query. The client is sent the query results and its
 			// notified whenever there's a change.
-			agent.query(index, req.q, qopts, function (err, emitter) {
-				if (err) return callback(err);
-				if (self.queries[qid]) return callback('ID in use');
 
-				// 'emitter' is an event emitter passed through from LiveDB that emits
-				// events whenever the results change. Livedb is responsible for
-				// rerunning queries in the most efficient (or most expedient) manner.
-				//
-				// Note that although the emitter looks the same as what LiveDB
-				// produces, the useragent code actually proxies the event emitter here
-				// so it can rewrite & check any results that pass through.
-				self.queries[qid] = emitter;
-
-				// The actual query results are simply mixed in to the emitter (in
-				// emitter.data). Callback called in a process.nextTick(), at the earliest.
-				var data = self._processQueryResults(emitter.data, qopts);
-
-				// Its possible that this will be called even when there's an error
-				// subscribing or something. In that case, just the failed subscribe
-				// will error to the client.
-				//self._reply(req, null, {id:qid, data:emitter.data, extra:emitter.extra});
-				callback(null, {id: qid, data: data, extra: emitter.extra});
-
-				emitter.on('extra', function (extra) {
-					self._send({a: 'q', id: qid, extra: extra});
-				});
-
-				emitter.on('diff', function (diff) {
-					for (var i = 0; i < diff.length; i++) {
-						var d = diff[i];
-						if (d.type === 'insert') {
-							d.values = self._processQueryResults(d.values, qopts);
-						}
-					}
-
-					// Consider stripping the collection out of the data we send here
-					// if it matches the query's index.
-					self._send({a: 'q', id: qid, diff: diff});
-				});
-
-				emitter.on('error', function (err) {
-					// Should we destroy the emitter here?
-					self._send({a: 'q', id: qid, error: err});
-					delete self.queries[qid];
-				});
-			});
 			break;
 
 		case 'qunsub':
 			// Unsubscribe from a query.
-			var query = self.queries[qid];
-			if (query) {
-				query.destroy();
-				delete self.queries[qid];
-			}
-			callback();
+
 			break;
 
 		default:

@@ -27,7 +27,10 @@ app = express();
 
 app.use(express.favicon());
 app.use(express.compress());
+app.use(express.cookieParser('qsheet'));
+app.use(express.cookieSession());
 app.use(express["static"](__dirname + '/public'));
+app.use(express.cookieParser('qsheet'));
 app.use(racerBrowserChannel(store));
 app.use(store.modelMiddleware());
 app.use(app.router);
@@ -171,3 +174,6 @@ port = 3000;
 http.createServer(app).listen(port, function(){
   return console.log('Go to http://localhost:' + port);
 });
+
+
+
