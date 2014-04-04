@@ -1,5 +1,6 @@
 var racer = require('./racer'),
-	templates = require('./templates');
+	templates = require('./templates'),
+	backbone = require('./backbone');
 
 require('./public/js/jquery-1.9.1.min.js');
 require('./public/js/jquery-ui-1.10.3.custom.min.js');

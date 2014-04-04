@@ -1,0 +1,41 @@
+<div>
+	<div class="termarea" style="height:30px;">
+		<div class="term">
+		</div>
+		<div style="float:right">
+			<input style="float:left;" class='qsheet-btn-colset' type="button" value="컬럼설정" />
+			<div style="margin-left:10px;float:left;width:130px;">
+				<div style="position:relative; float:left; font-size:12px; line-height: 22px;">폰트크기 :</div>
+				<div style="position:relative; margin-left:5px; float:left; " class='qsheet-list-fontsize'></div>
+			</div>
+		</div>
+	</div>
+
+	<div class='qsheet-grid'></div>
+
+	<div id="colSetWindow" style="display:none;">
+		<div>컬럼설정</div>
+		<div>
+			<div style="position:relative;">
+                <div class='qsheet-colset-left'>
+	                <div>비활성 컬럼목록</div>
+                    <div class='qsheet-colset-left-grid'></div>
+                </div>
+                <div class='qsheet-colset-right'>
+	                <div>활성 컬럼목록</div>
+                    <div class='qsheet-colset-right-grid'></div>
+                </div>
+			</div>
+			<div>
+				<input style="position:absolute; left:330px; top:250px;" type="button" class="qsheet-colset-btnleft" value="<" />
+				<input style="position:absolute; left:330px; top:300px;" type="button" class="qsheet-colset-btnright" value=">" />
+
+				<div style="position:absolute; bottom:10px; left:280px;">
+					<input type="button" class="qsheet-colset-btnok" value="확인" style="margin-right: 10px" />
+					<input type="button" class="qsheet-colset-btncancel" value="취소" />
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
