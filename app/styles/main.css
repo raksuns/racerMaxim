@@ -4,7 +4,7 @@ body {
 
 /* 고정폭 폰트 */
 .jqx-widget-content {
-	font-family: 굴림체;
+	font-family: '굴림체';
 }
 
 .qsheet-grid {
